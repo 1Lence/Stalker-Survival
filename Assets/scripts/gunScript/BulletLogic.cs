@@ -26,6 +26,12 @@ public class BulletLogic : MonoBehaviour
         //TODO: Обработка столкновений
         if (other.CompareTag("Enemy") || other.CompareTag("Obstacle"))
         {
+            BotBase bot = other.GetComponent<BotBase>();
+            if (bot is not null)
+            {
+                bot.TakeDamage(15f);
+            }
+            
             Destroy(gameObject);
         }
     }
