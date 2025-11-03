@@ -4,11 +4,12 @@ public class BulletLogic : MonoBehaviour
 {
     public float speed = 10f;
     public float lifeTime = 3f;
+    private long damage; // TODO: Добавить изменяемый урон
 
     void Start()
     {
+        float randomAngle = Random.Range(0f, 360f);
         
-        float randomAngle = Random.Range(0f, 360f); 
         Vector2 randomDirection = Quaternion.Euler(0, 0, randomAngle) * Vector2.up;
         
         transform.up = randomDirection;

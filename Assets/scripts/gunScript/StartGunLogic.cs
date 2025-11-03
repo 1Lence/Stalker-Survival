@@ -1,25 +1,30 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class StartGunLogic : MonoBehaviour
 {
-    [SerializeField] private GameObject bulletPrefab;
-    private Transform spawnPoint;
-    public float shootInterval = 1f; // Интервал между выстрелами
+    [SerializeField] private List<GameObject> gunPrefabs;
+    private PlayerData _playerData;
+    [SerializeField] private GameObject _player; 
+    private int counter = 1;
 
-    private float lastShotTime;
+    private void Start()
+    {
+        _playerData = _player.GetComponent<PlayerData>();
+        
+        GameObject pistol = gunPrefabs[0];
+        GameObject obj = Instantiate(pistol, transform.position, Quaternion.identity);
+        obj.transform.SetParent(transform);
+    }
 
     void Update()
     {
-        spawnPoint = transform;
-        if (Time.time - lastShotTime >= shootInterval)
+        if (_playerData._score >= 100 && counter != gunPrefabs.Count)
         {
-            SpawnBullet();
-            lastShotTime = Time.time;
+            GameObject obj = Instantiate(gunPrefabs[counter], transform.position, Quaternion.identity);
+            obj.transform.SetParent(transform);
+            counter++;
+            _playerData.newLevel();
         }
-    }
-
-    void SpawnBullet()
-    {
-        Instantiate(bulletPrefab, spawnPoint.position, Quaternion.identity);
     }
 }
