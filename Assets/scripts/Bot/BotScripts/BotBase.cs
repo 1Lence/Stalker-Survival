@@ -1,4 +1,4 @@
-using System;
+using Unity.VisualScripting;
 using UnityEngine;
 using static BotsDataSctructures;
 
@@ -8,41 +8,47 @@ using static BotsDataSctructures;
 [RequireComponent(typeof(Transform))]
 public abstract class BotBase : MonoBehaviour
 {
-    [SerializeField] protected BotDataSO botSOData;
+    //ScriptableObject
+    [SerializeField] protected BotDataSO botDataSO;
+    //Тактика бота
     [SerializeField] protected BotTactic tactic;
     
-    protected Rigidbody2D rb2d;
-    protected Transform transf;
+    protected Rigidbody2D Rb2d;
+    protected Transform Transf;
     
-    protected Transform playerTransform;
-    protected Vector2 playerPosition => playerTransform is not null ? playerTransform.position : Vector2.zero;
+    //Transform игрока, чтобы бот знал координаты
+    protected Transform PlayerTransform;
+    protected Vector2 PlayerPosition => PlayerTransform.position; //? PlayerTransform.position : Vector2.zero;
 
-    protected float maxHealth => botSOData.maxHealth;
-    protected float damage => botSOData.damage;
-    protected float moveSpeed => botSOData.moveSpeed;
-    protected float attackSpeed => botSOData.attackspeed;
-    protected float attackDistance => botSOData.attackDistance;
+    protected float MaxHealth => this.botDataSO.maxHealth;
+    protected float Damage => this.botDataSO.damage;
+    protected float MoveSpeed => this.botDataSO.moveSpeed;
+    protected float AttackSpeed => this.botDataSO.attackspeed;
+    protected float AttackDistance => this.botDataSO.attackDistance;
     
-    protected float currentHealth;
+    protected float CurrentHealth;
 
     protected virtual void Start()
     {
-        transf = GetComponent<Transform>();
-        rb2d = GetComponent<Rigidbody2D>();
-        currentHealth = botSOData.maxHealth;
+        if (this.botDataSO is null)
+            Debug.LogError($"{nameof(this.gameObject)} Bot DataSO is null");
+        
+        Transf = GetComponent<Transform>();
+        Rb2d = GetComponent<Rigidbody2D>();
+        CurrentHealth = this.botDataSO.maxHealth;
     }
 
     public virtual void TakeDamage(float damageInp)
     {
         if (damageInp >= 0)
         {
-            currentHealth -= damageInp;
-            currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
+            CurrentHealth -= damageInp;
+            CurrentHealth = Mathf.Clamp(CurrentHealth, 0f, MaxHealth);
         }
         else
             Debug.LogError($"{nameof(this.gameObject)} - Damage is negative ({damageInp}), can't take!");
 
-        if (currentHealth == 0)
+        if (CurrentHealth == 0) //смерть
         {
             Destroy(this.gameObject);
         }
@@ -51,11 +57,18 @@ public abstract class BotBase : MonoBehaviour
     public virtual void SetPlayerTransform(Transform player)
     {
         if (player is not null)
-            playerTransform = player;
+            PlayerTransform = player;
         else
             Debug.LogError($"{nameof(this.gameObject)}  - PlayerTransform is null! Error in SetPlayerTransform!");
     }
     
-    public float GetCurrentHealth() => currentHealth;
-    public float GetMaxHealth() => maxHealth;
+    public float GetCurrentHealth() => CurrentHealth;
+    public float GetMaxHealth() => MaxHealth;
+    public Transform GetPlayerTransform() => PlayerTransform;
+    
+    [ContextMenu("Kill Bot")]
+    public void KillBot()
+    {
+        TakeDamage(MaxHealth);
+    }
 }
