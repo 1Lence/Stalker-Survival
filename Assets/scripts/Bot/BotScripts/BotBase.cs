@@ -12,6 +12,8 @@ public abstract class BotBase : MonoBehaviour
     [SerializeField] protected BotDataSO botDataSO;
     //Тактика бота
     [SerializeField] protected BotTactic tactic;
+
+    public event System.Action<float, GameObject> OnDeathBot;
     
     protected Rigidbody2D Rb2d;
     protected Transform Transf;
@@ -50,7 +52,7 @@ public abstract class BotBase : MonoBehaviour
 
         if (CurrentHealth == 0) //смерть
         {
-            Destroy(this.gameObject);
+            OnDeathBot?.Invoke(damageInp, gameObject);
         }
     }
 

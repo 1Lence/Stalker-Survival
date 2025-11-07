@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: MutantBot
   m_EditorClassIdentifier: Assembly-CSharp::BotDataSO
   botName: Mutant
-  maxHealth: 1000
+  maxHealth: 10
   damage: 20
-  moveSpeed: 3
+  moveSpeed: 10
   attackspeed: 1
   attackDistance: 1.4
+  scoreKill: 10

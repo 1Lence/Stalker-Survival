@@ -254,7 +254,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StartGunLogic
   bulletPrefab: {fileID: 7951111691700326705, guid: 8c6f6cc0d89b85f4f8887ce74ab3b3b7, type: 3}
-  shootInterval: 1
+  shootInterval: 0.0001
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -656,7 +656,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ef0058ee94a8a54e96b13e786d6b151, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpawnSystem
-  bot: {fileID: 3947709796532744428, guid: 81a7ab9f507ce0e4c8e10b1bfb831c2c, type: 3}
+  bot1: {fileID: 3947709796532744428, guid: 81a7ab9f507ce0e4c8e10b1bfb831c2c, type: 3}
+  bot2: {fileID: 3947709796532744428, guid: 81a7ab9f507ce0e4c8e10b1bfb831c2c, type: 3}
+  bot3: {fileID: 3947709796532744428, guid: 81a7ab9f507ce0e4c8e10b1bfb831c2c, type: 3}
+  numberBot1OnScene: 40
+  numberBot2OnScene: 40
+  numberBot3OnScene: 40
+  spawnRateBot1: 150
+  spawnRateBot2: 150
+  spawnRateBot3: 150
+  spawnDistanceFromPlayer: 10
+  spawnDistanceFromPlayerRand: 3
+  spawnDisranceFromPrevBot: 1
+  spawnDistanceFromPrevBotRand: 0.3
+  spawnCheckInterval: 1
 --- !u!1001 &8619666220798833297
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -10,4 +10,5 @@ public class BotDataSO : ScriptableObject
     public float moveSpeed = 3f;
     public float attackspeed = 1f;
     public float attackDistance = 1f;
+    public float scoreKill = 10f;
 }
