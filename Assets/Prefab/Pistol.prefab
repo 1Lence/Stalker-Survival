@@ -104,5 +104,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Pistol
   bulletPrefab: {fileID: 7951111691700326705, guid: 8c6f6cc0d89b85f4f8887ce74ab3b3b7, type: 3}
-  shootInterval: 1
+  shootInterval: 0.001
+  rotationRadius: 1
   rotationSpeed: 90

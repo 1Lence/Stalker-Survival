@@ -21,12 +21,15 @@ public abstract class BotBase : MonoBehaviour
     //Transform игрока, чтобы бот знал координаты
     protected Transform PlayerTransform;
     protected Vector2 PlayerPosition => PlayerTransform.position; //? PlayerTransform.position : Vector2.zero;
+    protected GameObject PlayerObj;
+    protected PlayerControl PlayerControl;
 
     protected float MaxHealth => this.botDataSO.maxHealth;
     protected float Damage => this.botDataSO.damage;
     protected float MoveSpeed => this.botDataSO.moveSpeed;
     protected float AttackSpeed => this.botDataSO.attackspeed;
     protected float AttackDistance => this.botDataSO.attackDistance;
+    public int BotId => this.botDataSO.botID;
     
     protected float CurrentHealth;
 
@@ -58,10 +61,20 @@ public abstract class BotBase : MonoBehaviour
 
     public virtual void SetPlayerTransform(Transform player)
     {
-        if (player is not null)
-            PlayerTransform = player;
-        else
-            Debug.LogError($"{nameof(this.gameObject)}  - PlayerTransform is null! Error in SetPlayerTransform!");
+        PlayerTransform = player;
+        // if (player is not null)
+        //     PlayerTransform = player;
+        // else
+        //     Debug.LogError($"{nameof(this.gameObject)}  - PlayerTransform is null! Error in SetPlayerTransform!");
+    }
+
+    public virtual void SetPlayerControl(PlayerControl player)
+    {
+        PlayerControl = player;
+        // if (player is not null)
+        //     PlayerControl = player;
+        // else
+        //     Debug.LogError($"{nameof(this.gameObject)} - PlayerObj is null! Error in SetPlayerObject!");
     }
     
     public float GetCurrentHealth() => CurrentHealth;

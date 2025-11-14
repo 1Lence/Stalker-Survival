@@ -3,10 +3,10 @@ using UnityEngine;
 public class ARGun : MonoBehaviour, IGun
 {
     [SerializeField] private GameObject bulletPrefab;
-
+    
+    [SerializeField] private float shootInterval = 0.5f; // Интервал между выстрелами
+    
     private Transform spawnPoint;
-
-    private float shootInterval = 0.5f; // Интервал между выстрелами
 
     private float lastShotTime;
 

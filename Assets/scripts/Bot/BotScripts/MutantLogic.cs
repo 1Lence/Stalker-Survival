@@ -3,6 +3,9 @@ using UnityEngine;
 public class MutantLogic : BotBase
 {
     private Vector2 _direction = Vector2.zero;
+
+    // --- Новая переменная для отслеживания времени до следующей атаки ---
+    private float _nextAttackTime = 0f;
     
     protected override void Start()
     {
@@ -38,12 +41,18 @@ public class MutantLogic : BotBase
         }
         else
         {
-            Attack();
+            // --- Проверяем, можно ли атаковать ---
+            if (Time.time >= _nextAttackTime)
+            {
+                Attack();
+                // --- Обновляем время следующей возможной атаки ---
+                _nextAttackTime = Time.time + (1f / AttackSpeed);
+            }
         }
     }
 
     private void Attack()
     {
-        
+        this.PlayerControl.TakeDamage(Damage);
     }
 }

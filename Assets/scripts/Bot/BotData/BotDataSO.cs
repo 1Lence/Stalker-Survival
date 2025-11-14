@@ -5,6 +5,7 @@ public class BotDataSO : ScriptableObject
 {
     [Header("Basic Stats")]
     public string botName;
+    public int botID;
     public float maxHealth = 100f;
     public float damage = 20f;
     public float moveSpeed = 3f;

@@ -1,49 +1,42 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class SpawnSystem : MonoBehaviour
 {
     public static SpawnSystem Instance { get; private set; }
     
+    [Header("Префабы ботов")]
     [SerializeField] private GameObject bot1;
     [SerializeField] private GameObject bot2;
     [SerializeField] private GameObject bot3;
     
     [Header("Настройки спавна")]
-    [SerializeField] private int numberBot1OnScene; //число бот1 на сцене
-    [SerializeField] private int numberBot2OnScene; //число бот1 на сцене
-    [SerializeField] private int numberBot3OnScene; //число бот1 на сцене
+    [SerializeField] private int numberBot1OnScene; //желаемое число бот1 на сцене
+    [SerializeField] private int numberBot2OnScene; //желаемое число бот2 на сцене
+    [SerializeField] private int numberBot3OnScene; //желаемое число бот3 на сцене
     
-    [SerializeField] private int spawnRateBot1; //частота спавна ед/сек бот3
-    [SerializeField] private int spawnRateBot2; //частота спавна ед/сек бот3
-    [SerializeField] private int spawnRateBot3; //частота спавна ед/сек бот3
+    [SerializeField] private int spawnRateBot1; //желаемая частота спавна ед/сек бот1
+    [SerializeField] private int spawnRateBot2; //желаемая частота спавна ед/сек бот2
+    [SerializeField] private int spawnRateBot3; //желаемая частота спавна ед/сек бот3
     
-    [SerializeField] private float spawnDistanceFromPlayer; //дистанция спавна от игрока
-    [SerializeField] private float spawnDistanceFromPlayerRand; //число, на которое может случайно отклониться значение позиции при спавне от игрока
-    [SerializeField] private float spawnDisranceFromPrevBot; //дистанция спавна от прошлого бота
-    [SerializeField] private float spawnDistanceFromPrevBotRand; //число, на которое может случайно отклониться значение позиции при спавне от прошлого бота
+    [SerializeField] private float spawnDistanceFromPlayer; //базовая дистанция спавна от игрока
+    [SerializeField] private float spawnDistanceFromPlayerRand; //допустимое отклонение от базовой дистанции спавна от игрока
+    // spawnDisranceFromPrevBot и spawnDistanceFromPrevBotRand убираем, так как не используем проверку расстояния до других ботов
 
-    [Header("Оптимизационные настройки")]
-    [SerializeField] private float spawnCheckInterval = 0.2f;
-    
-    // --- Переменные для отслеживания "долга" по спавну ---
-    private float accumulatedSpawnTimeBot1 = 0f;
-    private float accumulatedSpawnTimeBot2 = 0f;
-    private float accumulatedSpawnTimeBot3 = 0f;
-    
+    // --- Переменные для отслеживания времени последнего спавна ---
     private float lastSpawnTimeBot1 = 0f;
     private float lastSpawnTimeBot2 = 0f;
     private float lastSpawnTimeBot3 = 0f;
-    private const float minSpawnInterval = 0.1f; // Минимальный интервал между проверками спавна, чтобы не перегружать CPU
     
     public event System.Action<float> OnScoreChanged; //событие передаёт очки за смерть бота
 
-    private List<GameObject> bot1List = new List<GameObject>();
-    private List<GameObject> bot2List = new List<GameObject>();
-    private List<GameObject> bot3List = new List<GameObject>();
+    // --- Переменные для подсчёта количества ботов на сцене ---
+    private int Bot1Number = 0;
+    private int Bot2Number = 0;
+    private int Bot3Number = 0;
     
     private GameObject _player;
+    private PlayerControl _playerControl;
     
     void Awake()
     {
@@ -58,151 +51,92 @@ public class SpawnSystem : MonoBehaviour
         }
         
         _player = GameObject.FindWithTag("Player");
-
-        if (_player is null)
-            Debug.LogError("Player not found");
-    }
-    
-    void Start()
-    {
-        // Запускаем корутину для периодической проверки спавна
-        StartCoroutine(SpawnCheckCoroutine());
-
-        System.Collections.IEnumerator SpawnCheckCoroutine()
+        if (_player != null)
         {
-            WaitForSeconds wait = new WaitForSeconds(spawnCheckInterval);
-            while (true) // Бесконечный цикл корутины
-            {
-                SpawnBotLogic();
-                yield return wait; // Ждем установленный интервал
-            }
+             _playerControl = _player.GetComponent<PlayerControl>();
+        }
+        else
+        {
+             Debug.LogError("Player not found");
         }
     }
 
     void Update()
     {
-        //SpawnBotLogic();
+        // Вызываем логику спавна каждый кадр
+        SpawnBotLogic();
+        // Debug.Log(Bot1Number + Bot2Number + Bot3Number); // Убираем, если не нужно постоянно выводить
     }
 
     private void SpawnBotLogic()
     {
         float currentTime = Time.time;
-        float deltaTime = spawnCheckInterval; // Используем фиксированный интервал, как задано в корутине
 
-        // --- Обновляем "долг" по спавну для Bot1 ---
-        if (spawnRateBot1 > 0 && bot1List.Count < numberBot1OnScene)
+        // --- Проверяем и спавним Bot1 ---
+        if (spawnRateBot1 > 0 && Bot1Number < numberBot1OnScene)
         {
-            accumulatedSpawnTimeBot1 += deltaTime;
-            int botsToSpawn = Mathf.FloorToInt(accumulatedSpawnTimeBot1 * spawnRateBot1); // Сколько ботов "должно" родиться за накопленное время
-            botsToSpawn = Mathf.Min(botsToSpawn, numberBot1OnScene - bot1List.Count); // Не превышать желаемое количество
-
-            if (botsToSpawn > 0)
+            float minSpawnInterval = 1.0f / spawnRateBot1;
+            if (currentTime - lastSpawnTimeBot1 >= minSpawnInterval)
             {
-                SpawnBotsOfType(bot1, botsToSpawn, bot1List);
-                accumulatedSpawnTimeBot1 -= (float)botsToSpawn / spawnRateBot1; // Вычитаем время, потраченное на спавн
-            }
-        }
-        else
-        {
-            // Если лимит достигнут или частота 0, сбрасываем долг, чтобы не накапливался
-            accumulatedSpawnTimeBot1 = 0f;
-        }
-
-        // --- Обновляем "долг" по спавну для Bot2 ---
-        if (spawnRateBot2 > 0 && bot2List.Count < numberBot2OnScene)
-        {
-            accumulatedSpawnTimeBot2 += deltaTime;
-            int botsToSpawn = Mathf.FloorToInt(accumulatedSpawnTimeBot2 * spawnRateBot2);
-            botsToSpawn = Mathf.Min(botsToSpawn, numberBot2OnScene - bot2List.Count);
-
-            if (botsToSpawn > 0)
-            {
-                SpawnBotsOfType(bot2, botsToSpawn, bot2List);
-                accumulatedSpawnTimeBot2 -= (float)botsToSpawn / spawnRateBot2;
-            }
-        }
-        else
-        {
-            accumulatedSpawnTimeBot2 = 0f;
-        }
-
-        // --- Обновляем "долг" по спавну для Bot3 ---
-        if (spawnRateBot3 > 0 && bot3List.Count < numberBot3OnScene)
-        {
-            accumulatedSpawnTimeBot3 += deltaTime;
-            int botsToSpawn = Mathf.FloorToInt(accumulatedSpawnTimeBot3 * spawnRateBot3);
-            botsToSpawn = Mathf.Min(botsToSpawn, numberBot3OnScene - bot3List.Count);
-
-            if (botsToSpawn > 0)
-            {
-                SpawnBotsOfType(bot3, botsToSpawn, bot3List);
-                accumulatedSpawnTimeBot3 -= (float)botsToSpawn / spawnRateBot3;
-            }
-        }
-        else
-        {
-            accumulatedSpawnTimeBot3 = 0f;
-        }
-    }
-
-    // --- Новый метод для спавна нескольких ботов одного типа ---
-    private void SpawnBotsOfType(GameObject botPrefab, int count, List<GameObject> botList)
-    {
-        for (int i = 0; i < count; i++)
-        {
-            // Проверяем, можно ли спавнить бота (учитывая дистанцию до других ботов этого же типа)
-            if (CanSpawnBot(botList, spawnDisranceFromPrevBot, spawnDistanceFromPrevBotRand))
-            {
-                Vector3 spawnPos = GetSpawnPosition(spawnDistanceFromPlayer, spawnDistanceFromPlayerRand);
-                SpawnBot(botPrefab, spawnPos);
-                //Debug.Log($"Спавн {botPrefab.name} в {spawnPos}, список: {botList.Count}/{numberBot1OnScene или 2 или 3}"); // Нужно будет адаптировать лог
-            }
-            else
-            {
-                // Если не удалось найти место для спавна, прерываем цикл спавна для этого типа
-                // Это предотвращает попытки спавна 100 ботов, если место закончилось после 10.
-                Debug.Log($"SpawnSystem: Не удалось найти место для спавна {botPrefab.name}, остановка цикла спавна для этого типа на этом интервале.");
-                break;
-            }
-        }
-    }
-    
-    private bool ShouldSpawn(float currentTime, int spawnRate, ref float lastSpawnTime)
-    {
-        float minInterval = 1.0f / Mathf.Max(spawnRate, 1);
-        return currentTime - lastSpawnTime >= minInterval;
-    }
-    
-    private bool CanSpawnBot(List<GameObject> botList, float baseDistance, float distanceRand)
-    {
-        float minRequiredDistance = baseDistance - distanceRand;
-        if (minRequiredDistance <= 0) return true;
-        float minRequiredDistanceSqr = minRequiredDistance * minRequiredDistance;
-
-        int maxAttempts = 10;
-        for (int i = 0; i < maxAttempts; i++)
-        {
-            Vector3 potentialSpawnPos = GetSpawnPosition(spawnDistanceFromPlayer, spawnDistanceFromPlayerRand);
-
-            bool isClear = true;
-            foreach (GameObject existingBot in botList)
-            {
-                if (existingBot is not null) continue; // Опечатка была: "is not null" -> "is null" не имеет смысла, нужно "==" или "is null". Правильный вариант: "existingBot is null" или "existingBot == null". "is not null" означает "!= null", что неправильно. Исправлено на "==".
-
-                float distanceSqr = (existingBot.transform.position - potentialSpawnPos).sqrMagnitude;
-                if (distanceSqr < minRequiredDistanceSqr)
+                // Упрощённая проверка CanSpawnBot - только расстояние до игрока
+                if (CanSpawnBotBasicCheck())
                 {
-                    isClear = false;
-                    break;
+                    Vector3 spawnPos = GetSpawnPosition(spawnDistanceFromPlayer, spawnDistanceFromPlayerRand);
+                    SpawnBot(bot1, spawnPos);
+                    lastSpawnTimeBot1 = currentTime; // Обновляем время последнего спавна
                 }
             }
+        }
 
-            if (isClear)
+        // --- Проверяем и спавним Bot2 ---
+        if (spawnRateBot2 > 0 && Bot2Number < numberBot2OnScene)
+        {
+            float minSpawnInterval = 1.0f / spawnRateBot2;
+            if (currentTime - lastSpawnTimeBot2 >= minSpawnInterval)
             {
-                return true;
+                if (CanSpawnBotBasicCheck())
+                {
+                    Vector3 spawnPos = GetSpawnPosition(spawnDistanceFromPlayer, spawnDistanceFromPlayerRand);
+                    SpawnBot(bot2, spawnPos);
+                    lastSpawnTimeBot2 = currentTime;
+                }
             }
         }
-        return false;
+
+        // --- Проверяем и спавним Bot3 ---
+        if (spawnRateBot3 > 0 && Bot3Number < numberBot3OnScene)
+        {
+            float minSpawnInterval = 1.0f / spawnRateBot3;
+            if (currentTime - lastSpawnTimeBot3 >= minSpawnInterval)
+            {
+                if (CanSpawnBotBasicCheck())
+                {
+                    Vector3 spawnPos = GetSpawnPosition(spawnDistanceFromPlayer, spawnDistanceFromPlayerRand);
+                    SpawnBot(bot3, spawnPos);
+                    lastSpawnTimeBot3 = currentTime;
+                }
+            }
+        }
+    }
+
+    // --- Упрощённая проверка возможности спавна ---
+    private bool CanSpawnBotBasicCheck()
+    {
+        // Проверка, что минимальное расстояние от игрока соблюдено
+        Vector3 potentialSpawnPos = GetSpawnPosition(spawnDistanceFromPlayer, spawnDistanceFromPlayerRand);
+        float distanceToPlayer = Vector3.Distance(potentialSpawnPos, _player.transform.position);
+        float minDistanceToPlayer = spawnDistanceFromPlayer - spawnDistanceFromPlayerRand;
+
+        if (distanceToPlayer < minDistanceToPlayer)
+        {
+            return false; // Позиция слишком близко к игроку
+        }
+
+        // Можно добавить другие базовые проверки (например, не в стене ли)
+        // RaycastHit2D hit = Physics2D.Raycast(potentialSpawnPos, Vector2.zero, 0.1f);
+        // if (hit.collider != null) return false; // Пример проверки на коллизию
+
+        return true; // Позиция валидна
     }
     
     private Vector3 GetSpawnPosition(float baseDistance, float distanceRand)
@@ -219,29 +153,36 @@ public class SpawnSystem : MonoBehaviour
         
         BotBase botObj = botGo.GetComponent<BotBase>();
         
-        if (botObj is not null)
+        if (botObj != null)
         {
-            botObj.OnDeathBot += DestroyBot;
-            botObj.SetPlayerTransform(_player.transform);
+            // --- Подписка на событие смерти ---
+            botObj.OnDeathBot += DestroyBot; 
 
-            if (botPrefab == bot1)
+            botObj.SetPlayerTransform(_player.transform);
+            if (_playerControl != null)
             {
-                bot1List.Add(botGo);
+                 botObj.SetPlayerControl(_playerControl);
             }
-            else if (botPrefab == bot2)
+
+            // --- Увеличиваем счётчик ботов соответствующего типа ---
+            if (botObj.BotId == 1)
             {
-                bot2List.Add(botGo);
+                Bot1Number++;
             }
-            else if (botPrefab == bot3)
+            else if (botObj.BotId == 2)
             {
-                bot3List.Add(botGo);
+                Bot2Number++;
+            }
+            else if (botObj.BotId == 3)
+            {
+                Bot3Number++;
             }
             else
             {
-                Debug.LogWarning($"SpawnSystem: Неизвестный префаб бота {botPrefab.name}, не добавлен в список.");
+                Debug.LogWarning($"SpawnSystem: У бота {botGo.name} неизвестный BotId {botObj.BotId}, не увеличено количество.");
             }
 
-            //Debug.Log($"Бот {botGo.name} заспавнен, подписан на OnDeathBot, добавлен в список.");
+            Debug.Log($"SpawnBot: Заспавнен бот с BotId {botObj.BotId}. Счётчики: 1-{Bot1Number}, 2-{Bot2Number}, 3-{Bot3Number}");
         }
         else
         {
@@ -251,44 +192,49 @@ public class SpawnSystem : MonoBehaviour
 
     private void DestroyBot(float score, GameObject bot)
     {
-        bool removedFromList = false;
-        if (bot1List.Contains(bot))
-        {
-            bot1List.Remove(bot);
-            removedFromList = true;
-            Debug.Log($"Бот {bot.name} удалён из bot1List.");
-        }
-        else if (bot2List.Contains(bot))
-        {
-            bot2List.Remove(bot);
-            removedFromList = true;
-            Debug.Log($"Бот {bot.name} удалён из bot2List.");
-        }
-        else if (bot3List.Contains(bot))
-        {
-            bot3List.Remove(bot);
-            removedFromList = true;
-            Debug.Log($"Бот {bot.name} удалён из bot3List.");
-        }
+        Debug.Log($"DestroyBot вызван для {bot.name}"); // <--- Добавить
 
-        if (!removedFromList)
-        {
-            Debug.LogWarning($"SpawnSystem: Попытка удалить бота {bot.name} из списка, но он не был найден.");
-        }
-
+        // Уменьшаем счётчик ботов соответствующего типа
         BotBase botComponent = bot.GetComponent<BotBase>();
         if (botComponent != null)
         {
-            botComponent.OnDeathBot -= DestroyBot;
+            // --- Отписка от события смерти ---
+            botComponent.OnDeathBot -= DestroyBot; 
+
+            // --- Используем BotId из компонента бота ---
+            if (botComponent.BotId == 1)
+            {
+                Bot1Number = Mathf.Max(0, Bot1Number - 1);
+                Debug.Log($"DestroyBot: Убит Bot1. Счётчик: {Bot1Number}/{numberBot1OnScene}"); // <--- Добавить
+            }
+            else if (botComponent.BotId == 2)
+            {
+                Bot2Number = Mathf.Max(0, Bot2Number - 1);
+                Debug.Log($"DestroyBot: Убит Bot2. Счётчик: {Bot2Number}/{numberBot2OnScene}"); // <--- Добавить
+            }
+            else if (botComponent.BotId == 3)
+            {
+                Bot3Number = Mathf.Max(0, Bot3Number - 1);
+                Debug.Log($"DestroyBot: Убит Bot3. Счётчик: {Bot3Number}/{numberBot3OnScene}"); // <--- Добавить
+            }
+            else
+            {
+                Debug.LogWarning($"SpawnSystem: У бота {bot.name} неизвестный BotId {botComponent.BotId}, не уменьшено количество.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"SpawnSystem: У бота {bot.name} не найден компонент BotBase перед отпиской.");
         }
 
+        // Уничтожаем GameObject бота в сцене
         Destroy(bot);
 
+        // Вызываем событие OnScoreChanged, передав ему количество очков
         OnScoreChanged?.Invoke(score);
-        //Debug.Log($"Вызвано событие OnScoreChanged с очками: {score}");
     }
 
-    [ContextMenu("Spawn Bot")]
+    [ContextMenu("Spawn Bot1")]
     public void Spawn()
     {
         SpawnBot(bot1, GetSpawnPosition(5f, 5f));
