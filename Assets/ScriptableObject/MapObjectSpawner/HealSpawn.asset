@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91c72b122fa18824097976d5a87baa91, type: 3}
+  m_Name: HealSpawn
+  m_EditorClassIdentifier: Assembly-CSharp::MapSpawnerObjectDataSO
+  healPrefab: {fileID: 6864140124423524832, guid: d4fbc0cf9ba41ab44b2fbcd519a91d2f, type: 3}
+  initialCount: 50
+  maxObjectsOnMap: 120
+  spawnInterval: 10
+  spawnBatchSize: 3
+  minDistanceBetween: 10

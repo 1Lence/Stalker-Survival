@@ -2,31 +2,39 @@ using UnityEngine;
 
 public class MutantLogic : BotBase
 {
-    [SerializeField] private Transform playerTrans; //временная заглушка, т.к. спавнера бота нет.
-    
-    private Vector2 direction = Vector2.zero;
-    
+    private Vector2 _direction = Vector2.zero;
+    private float _nextAttackTime = 0f;
+    private bool _isMoving = false;
+    private bool _isAttacking = false; // 🔥 Новый флаг
+
     protected override void Start()
     {
         base.Start();
-        SetPlayerTransform(playerTrans);
     }
-    
+
     void Update()
     { 
-        if (playerTransform is not null)
-            BotLogic(playerPosition);
+        if (PlayerTransform is not null)
+        {
+            BotLogic(PlayerPosition);
+        }
+    }
+
+    void FixedUpdate()
+    {
+        if (_isMoving)
+            BotMove();
     }
 
     private void BotMove()
     {
-        rb2d.MovePosition(rb2d.position + moveSpeed * Time.deltaTime * direction);
+        Rb2d.MovePosition(Rb2d.position + MoveSpeed * Time.fixedDeltaTime * _direction);
     }
 
     private void BotDirection(Vector2 target)
     {
-        direction = (target - (Vector2)transform.position).normalized;
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        _direction = (target - (Vector2)transform.position).normalized;
+        float angle = Mathf.Atan2(_direction.y, _direction.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.AngleAxis(angle - 90, Vector3.forward);
     }
 
@@ -34,19 +42,63 @@ public class MutantLogic : BotBase
     {
         float distance = Vector2.Distance(transform.position, target);
         BotDirection(target);
-        
-        if (distance > attackDistance)
+
+        float maxHitDistance = AttackDistance + AttackDistanceTolerance;
+
+        if (distance > maxHitDistance)
         {
-            BotMove();
+            _isMoving = true;
+            _isAttacking = false;
+            CancelInvoke(nameof(PerformAttack)); // Отменяем, если ушли из зоны
         }
         else
         {
-            BotAttack(target);
+            _isMoving = false;
+
+            // Атакуем только если не в процессе атаки и прошло время
+            if (!_isAttacking && Time.time >= _nextAttackTime)
+            {
+                _isAttacking = true;
+                CancelInvoke(nameof(PerformAttack)); // На всякий случай
+                Invoke(nameof(PerformAttack), AttackDelay);
+            }
         }
     }
 
-    private void BotAttack(Vector2 target)
+    private void PerformAttack()
     {
-        
+        if (PlayerTransform != null)
+        {
+            float distance = Vector2.Distance(transform.position, PlayerTransform.position);
+            float maxHitDistance = AttackDistance + AttackDistanceTolerance;
+
+            if (distance <= maxHitDistance)
+            {
+                PlayerControl?.TakeDamage(Damage);
+
+                switch (BotId)
+                {
+                    case 1:
+                        AudioSystem.Instance?.PlayMutantAtackBig();
+                        break;
+                    case 2:
+                        AudioSystem.Instance?.PlayMutantAtackSmall();
+                        break;
+                    case 3:
+                        AudioSystem.Instance?.PlayMutantShot();
+                        break;
+                }
+            }
+        }
+
+        //Сбрасываем флаг и устанавливаем таймер
+        _isAttacking = false;
+        _nextAttackTime = Time.time + (1f / AttackSpeed);
+    }
+
+    // На всякий случай: отменяем при уничтожении
+    protected void OnDestroy()
+    {
+        CancelInvoke(nameof(PerformAttack));
     }
 }
