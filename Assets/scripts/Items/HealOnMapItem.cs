@@ -3,7 +3,9 @@ using UnityEngine;
 
 public class HealItem : MonoBehaviour, IHealable
 {
-    [SerializeField] private float _healAmount = 15f;
+    [SerializeField] private HealDataSO healDataSO;
+
+    private int healAmount => healDataSO.healAmount;
     
     public System.Action<GameObject> OnDestroyed { get; set; }
 
@@ -12,7 +14,7 @@ public class HealItem : MonoBehaviour, IHealable
         if (other.CompareTag("Player"))
         {
             // Лечим игрока
-            other.GetComponent<PlayerControl>()?.TakeHeal(_healAmount);
+            other.GetComponent<PlayerControl>()?.TakeHeal(healAmount);
             
             // Уведомляем спавнер
             OnDestroyed?.Invoke(gameObject);
