@@ -1,5 +1,5 @@
-using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.TestTools;
 using static BotsDataSctructures;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -11,9 +11,9 @@ public abstract class BotBase : MonoBehaviour
     //ScriptableObject
     [SerializeField] protected BotDataSO botDataSO;
     //Тактика бота
-    [SerializeField] protected BotTactic tactic;
+    //[SerializeField] protected BotTactic tactic;
 
-    public event System.Action<float, GameObject> OnDeathBot;
+    public event System.Action<int, GameObject> OnDeathBot;
     
     protected Rigidbody2D Rb2d;
     protected Transform Transf;
@@ -28,8 +28,13 @@ public abstract class BotBase : MonoBehaviour
     protected float Damage => this.botDataSO.damage;
     protected float MoveSpeed => this.botDataSO.moveSpeed;
     protected float AttackSpeed => this.botDataSO.attackspeed;
+    protected float AttackDelay => this.botDataSO.attackDelay;
     protected float AttackDistance => this.botDataSO.attackDistance;
+    protected float AttackDistanceTolerance => this.botDataSO.attackDistanceTolerance;
+    protected float ShotSpeed => this.botDataSO.shotSpeed;
+    protected float ShotSize => this.botDataSO.shotSize;
     public int BotId => this.botDataSO.botID;
+    protected int BotScore => this.botDataSO.scoreKill;
     
     protected float CurrentHealth;
 
@@ -55,7 +60,7 @@ public abstract class BotBase : MonoBehaviour
 
         if (CurrentHealth == 0) //смерть
         {
-            OnDeathBot?.Invoke(damageInp, gameObject);
+            OnDeathBot?.Invoke(BotScore, gameObject);
         }
     }
 
