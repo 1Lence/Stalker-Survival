@@ -16,11 +16,11 @@ MonoBehaviour:
   botLayer:
     serializedVersion: 2
     m_Bits: 64
-  damagePerBullet: 15
+  damagePerBullet: 100
   maxShootDistance: 5
   shootPerMinutes: 60
-  spread: 70
-  bulletsPerShot: 15
+  spread: 360
+  bulletsPerShot: 360
   bulletLife: 1
   bulletSound: {fileID: 8300000, guid: abe61497833e9b04ca29e6c43704e1f7, type: 3}
   rotationRadius: 1.4

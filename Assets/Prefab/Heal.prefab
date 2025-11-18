@@ -140,4 +140,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2705b9c36e2f924da74cef10e129b93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealOnMap
-  _healAmount: 20
+  healDataSO: {fileID: 11400000, guid: 4691f9a31bf03fc4aaf4d5d3b6ab0de3, type: 2}
