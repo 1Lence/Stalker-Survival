@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class ShooterLogic : BotBase
 {
+    [SerializeField] Animator animator;
     [Header("Shooter Settings")]
     [SerializeField] private GameObject bulletPrefab; // Префаб пули
 
@@ -24,6 +25,12 @@ public class ShooterLogic : BotBase
         if (PlayerTransform is not null)
         {
             BotLogic(PlayerPosition);
+            
+            float distanceToPlayer = Vector2.Distance(transform.position, PlayerTransform.position);
+            if (distanceToPlayer > distanceFromPlayer) // distanceFromPlayer — из BotBase
+            {
+                BotTeleportToPlayer();
+            }
         }
     }
 
@@ -58,11 +65,13 @@ public class ShooterLogic : BotBase
             _isMoving = true;
             _isAttacking = false;
             CancelInvoke(nameof(PerformAttack));
+            animator.SetBool("IsMoving", true);
         }
         else
         {
             // Игрок в зоне — останавливаемся и готовим выстрел
             _isMoving = false;
+            animator.SetBool("IsMoving", false);
 
             if (!_isAttacking && Time.time >= _nextAttackTime)
             {

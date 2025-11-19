@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb235aa79a2b3ba4ca622b67eb3a7536, type: 3}
+  m_Name: Zero
+  m_EditorClassIdentifier: Assembly-CSharp::SpawnSystemDataSO
+  bot1: {fileID: 3947709796532744428, guid: 81a7ab9f507ce0e4c8e10b1bfb831c2c, type: 3}
+  bot2: {fileID: 3947709796532744428, guid: cef187efd7ed19049942be263218c727, type: 3}
+  bot3: {fileID: 3947709796532744428, guid: b66b46e22e700804c845d37ba77847ce, type: 3}
+  numberBot1OnScene: 10
+  numberBot2OnScene: 10
+  numberBot3OnScene: 10
+  spawnRateBot1: 0
+  spawnRateBot2: 0
+  spawnRateBot3: 0
+  spawnDistanceFromPlayer: 10
+  spawnDistanceFromPlayerRand: 0
+  difficultyIncreaseInterval: 0
+  botCountIncrement: 0
+  spawnRateIncrement: 0
+  maxBot1Count: 0
+  maxBot2Count: 0
+  maxBot3Count: 0
+  maxSpawnRateBot1: 0
+  maxSpawnRateBot2: 0
+  maxSpawnRateBot3: 0

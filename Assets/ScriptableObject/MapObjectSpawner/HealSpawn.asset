@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: HealSpawn
   m_EditorClassIdentifier: Assembly-CSharp::MapSpawnerObjectDataSO
   healPrefab: {fileID: 6864140124423524832, guid: d4fbc0cf9ba41ab44b2fbcd519a91d2f, type: 3}
-  initialCount: 50
-  maxObjectsOnMap: 120
+  initialCount: 20
+  maxObjectsOnMap: 40
   spawnInterval: 10
   spawnBatchSize: 3
   minDistanceBetween: 10

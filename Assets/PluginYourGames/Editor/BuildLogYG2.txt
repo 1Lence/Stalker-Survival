@@ -1,0 +1,3 @@
+﻿Build path: E:/Unity/unityProjects/BuildedProjects/Fear
+Build number: 5
+PluginYG version: 2.007

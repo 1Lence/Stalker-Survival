@@ -118,15 +118,15 @@ public class MapObjectSpawner : MonoBehaviour
         }
     }
 
-    // Для отладки
-    private void OnDrawGizmosSelected()
-    {
-        if (mapBounds is not null)
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireCube(mapBounds.bounds.center, mapBounds.bounds.size);
-        }
-    }
+    // // Для отладки
+    // private void OnDrawGizmosSelected()
+    // {
+    //     if (mapBounds is not null)
+    //     {
+    //         Gizmos.color = Color.green;
+    //         Gizmos.DrawWireCube(mapBounds.bounds.center, mapBounds.bounds.size);
+    //     }
+    // }
 }
 
 public interface IHealable

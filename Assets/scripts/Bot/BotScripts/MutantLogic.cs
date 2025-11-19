@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class MutantLogic : BotBase
 {
+    [SerializeField] private Animator animator;
     private Vector2 _direction = Vector2.zero;
     private float _nextAttackTime = 0f;
     private bool _isMoving = false;
@@ -17,6 +18,12 @@ public class MutantLogic : BotBase
         if (PlayerTransform is not null)
         {
             BotLogic(PlayerPosition);
+            
+            float distanceToPlayer = Vector2.Distance(transform.position, PlayerTransform.position);
+            if (distanceToPlayer > distanceFromPlayer) // distanceFromPlayer — из BotBase
+            {
+                BotTeleportToPlayer();
+            }
         }
     }
 
@@ -50,10 +57,12 @@ public class MutantLogic : BotBase
             _isMoving = true;
             _isAttacking = false;
             CancelInvoke(nameof(PerformAttack)); // Отменяем, если ушли из зоны
+            animator.SetBool("IsMoving", true);
         }
         else
         {
             _isMoving = false;
+            animator.SetBool("IsMoving", false);
 
             // Атакуем только если не в процессе атаки и прошло время
             if (!_isAttacking && Time.time >= _nextAttackTime)

@@ -3,6 +3,8 @@ using UnityEngine;
 public class PlayerControl : MonoBehaviour
 {
     [SerializeField] private PlayerDataSO playerDataSO;
+    [SerializeField] private Animator animator;
+    [SerializeField] private GameObject playerAnimator;
     private float maxHealth => playerDataSO.maxHealth;
     private float moveSpeed => playerDataSO.speed;
     
@@ -35,6 +37,11 @@ public class PlayerControl : MonoBehaviour
         float inputX = Input.GetAxisRaw("Horizontal");
         float inputY = Input.GetAxisRaw("Vertical");
         playerMoveDirection = new Vector3(inputX, inputY).normalized;
+        
+        if(rb.linearVelocity.magnitude > 0)
+            animator.SetBool("IsMoving", true);
+        else
+            animator.SetBool("IsMoving", false);
 
         // Поворот: сначала пробуем на бота, если нет — по движению
         LookAtTarget();
@@ -84,6 +91,7 @@ public class PlayerControl : MonoBehaviour
         {
             float angle = Mathf.Atan2(playerMoveDirection.y, playerMoveDirection.x) * Mathf.Rad2Deg;
             aimTarget.rotation = Quaternion.Euler(0, 0, angle + 90f);
+            playerAnimator.transform.rotation = Quaternion.Euler(0, 0, angle + 90f);
         }
         // Если playerMoveDirection == zero — оставляем текущее направление
     }

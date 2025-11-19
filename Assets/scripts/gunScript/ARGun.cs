@@ -23,13 +23,16 @@ public class Gun : MonoBehaviour
     private float currentAngle = 0f;
 
     private Transform nearestBot = null;
-    private Transform player; // Игрок = родитель
+    private Transform player;
     private bool _audioSystemReady = false;
+
+    // 🔥 Новое: режим поведения
+    private bool _isInFixedPosition = false;
 
     void Start()
     {
         player = transform.parent;
-        if (player is null)
+        if (player == null)
         {
             Debug.LogError("Gun должен быть дочерним объектом Player!");
         }
@@ -42,20 +45,17 @@ public class Gun : MonoBehaviour
         {
             shootInterval = float.MaxValue;
         }
-        
-        // Проверяем наличие AudioSystem в первый кадр
+
         if (!_audioSystemReady)
         {
-            _audioSystemReady = AudioSystem.Instance is not null;
+            _audioSystemReady = AudioSystem.Instance != null;
             if (!_audioSystemReady)
             {
-                // Попытка найти на сцене (на случай, если не синглтон или загружен позже)
                 var audioSystem = FindObjectOfType<AudioSystem>();
-                if (audioSystem is not null)
+                if (audioSystem != null)
                 {
                     _audioSystemReady = true;
                 }
-                // Если не найден — игнорируем звук, но не падаем
             }
         }
     }
@@ -64,14 +64,16 @@ public class Gun : MonoBehaviour
     {
         FindNearestBot();
 
+        if (!_isInFixedPosition)
+        {
+            // 🔥 Только если не в фиксированной позиции
+            RotateAroundPlayer();
+        }
+
         if (nearestBot is not null && Vector3.Distance(transform.position, nearestBot.position) <= maxDistance)
         {
-            PositionAndRotateTowardsTarget(nearestBot.position);
+            AimAtTarget(nearestBot.position);
             TryShoot();
-        }
-        else
-        {
-            RotateFreely();
         }
     }
 
@@ -114,16 +116,10 @@ public class Gun : MonoBehaviour
             }
         }
 
-        // 🔊 Безопасное проигрывание звука
         if (_audioSystemReady && bulletSound is not null)
         {
             AudioSystem.Instance.PlayOneShot(bulletSound);
         }
-        // else if (bulletSound is not null)
-        // {
-        //     // Fallback: если AudioSystem не готов, но звук есть — проигрываем напрямую
-        //     //AudioSource.PlayClipAtPoint(bulletSound, transform.position, 0.7f);
-        // }
     }
 
     private void FireSingleBullet(Vector2 baseDirection, float angleOffsetDegrees)
@@ -145,26 +141,36 @@ public class Gun : MonoBehaviour
         }
     }
 
-    void PositionAndRotateTowardsTarget(Vector3 targetPosition)
+    void AimAtTarget(Vector3 targetPosition)
     {
-        if (player is null) return;
-
-        Vector3 toTarget = (targetPosition - player.position).normalized;
-        transform.position = player.position + toTarget * rotationRadius;
-
-        float angle = Mathf.Atan2(toTarget.y, toTarget.x) * Mathf.Rad2Deg;
+        Vector2 direction = (targetPosition - transform.position).normalized;
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0, 0, angle + 90f);
     }
 
-    void RotateFreely()
+    void RotateAroundPlayer()
     {
         currentAngle += rotationSpeed * Time.deltaTime;
         float x = Mathf.Cos(currentAngle * Mathf.Deg2Rad) * rotationRadius;
         float y = Mathf.Sin(currentAngle * Mathf.Deg2Rad) * rotationRadius;
         transform.localPosition = new Vector3(x, y, 0);
 
-        Vector3 direction = transform.localPosition.normalized;
-        float lookAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, lookAngle + 180f);
+        // Поворот "вперёд" по касательной (опционально)
+        // Vector3 direction = transform.localPosition.normalized;
+        // float lookAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        // transform.rotation = Quaternion.Euler(0, 0, lookAngle + 180f);
+    }
+
+    // 🔥 Новое: фиксированная позиция
+    public void SetPosition(Vector3 position, Quaternion rotation)
+    {
+        transform.localPosition = position;
+        transform.rotation = rotation;
+        _isInFixedPosition = true; // 🔥 Включаем фиксированный режим
+    }
+
+    public void EnableAutoRotate()
+    {
+        _isInFixedPosition = false; // 🔥 Возвращаемся к вращению
     }
 }

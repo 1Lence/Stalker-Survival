@@ -15,12 +15,12 @@ MonoBehaviour:
   botName: MutantShooter
   botID: 3
   maxHealth: 100
-  damage: 25
-  moveSpeed: 3
-  attackspeed: 0.6
-  attackDelay: 0.4
+  damage: 20
+  moveSpeed: 5
+  attackspeed: 1
+  attackDelay: 0.6
   attackDistance: 10
   attackDistanceTolerance: 0.5
-  shotSpeed: 3
-  shotSize: 0.5
+  shotSpeed: 10
+  shotSize: 0.7
   scoreKill: 15
