@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Linq;
 
-public class Pistol : MonoBehaviour, IGun
+public class Pistol : MonoBehaviour
 {
     [SerializeField] private GunDataSO gunDataSo;
     private GameObject bulletPrefab => gunDataSo.bulletPrefab;

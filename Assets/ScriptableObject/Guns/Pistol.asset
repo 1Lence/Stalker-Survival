@@ -18,7 +18,7 @@ MonoBehaviour:
     m_Bits: 64
   damagePerBullet: 10
   maxShootDistance: 9
-  shootPerMinutes: 330
+  shootPerMinutes: 200
   spread: 5
   bulletsPerShot: 1
   bulletLife: 3

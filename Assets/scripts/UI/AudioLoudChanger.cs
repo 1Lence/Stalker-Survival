@@ -9,7 +9,7 @@ public class AudioLoudChanger : MonoBehaviour
     void Start()
     {
         _slider = GetComponent<Slider>();
-        if (_slider is not null)
+        if (_slider is not null && AudioSystem.Instance is not null)
         {
             switch (type)
             {

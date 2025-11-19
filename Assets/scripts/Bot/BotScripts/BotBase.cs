@@ -10,6 +10,9 @@ public abstract class BotBase : MonoBehaviour
 {
     //ScriptableObject
     [SerializeField] protected BotDataSO botDataSO;
+    [SerializeField] protected float distanceFromPlayer = 20f; //дистанция от игрока, при которой бот должен телепортироваться
+    [SerializeField] private float teleportFromPlayerDistance = 10f; //дистанция от игрока, на которой бот должен заспавнится
+    [SerializeField] private float teleportRand = 2f; //рандомизация величины дистанции от игрока при телепорте
     //Тактика бота
     //[SerializeField] protected BotTactic tactic;
 
@@ -62,6 +65,33 @@ public abstract class BotBase : MonoBehaviour
         {
             OnDeathBot?.Invoke(BotScore, gameObject);
         }
+    }
+
+    protected void BotTeleportToPlayer()
+    {
+        if (PlayerTransform is null)
+        {
+            Debug.LogWarning("BotTeleportToPlayer: PlayerTransform is null!");
+            return;
+        }
+
+        // Вычисляем новую позицию: случайная точка на окружности вокруг игрока
+        float angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
+        float distance = teleportFromPlayerDistance + Random.Range(-teleportRand, teleportRand);
+    
+        Vector2 offset = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * distance;
+        Vector3 newPosition = PlayerTransform.position + new Vector3(offset.x, offset.y, 0);
+
+        // Применяем новую позицию
+        transform.position = newPosition;
+
+        // Если у бота есть Rigidbody2D — обновляем его позицию тоже
+        if (Rb2d is not null)
+        {
+            Rb2d.MovePosition(newPosition);
+        }
+
+        //Debug.Log($"Bot {gameObject.name} teleported to {newPosition}");
     }
 
     public virtual void SetPlayerTransform(Transform player)

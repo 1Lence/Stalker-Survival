@@ -18,17 +18,17 @@ MonoBehaviour:
   numberBot1OnScene: 3
   numberBot2OnScene: 2
   numberBot3OnScene: 1
-  spawnRateBot1: 0.4
-  spawnRateBot2: 0.6
-  spawnRateBot3: 0.3
-  spawnDistanceFromPlayer: 10
-  spawnDistanceFromPlayerRand: 2
-  difficultyIncreaseInterval: 10
+  spawnRateBot1: 0.2
+  spawnRateBot2: 0.8
+  spawnRateBot3: 0.1
+  spawnDistanceFromPlayer: 20
+  spawnDistanceFromPlayerRand: 3
+  difficultyIncreaseInterval: 4
   botCountIncrement: 1
   spawnRateIncrement: 0.2
-  maxBot1Count: 5
-  maxBot2Count: 5
-  maxBot3Count: 5
+  maxBot1Count: 60
+  maxBot2Count: 20
+  maxBot3Count: 40
   maxSpawnRateBot1: 5
-  maxSpawnRateBot2: 5
-  maxSpawnRateBot3: 5
+  maxSpawnRateBot2: 6
+  maxSpawnRateBot3: 0.5

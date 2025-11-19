@@ -41,9 +41,10 @@ public class SpawnSystem : MonoBehaviour
     private float lastSpawnTimeBot2 = 0f;
     private float lastSpawnTimeBot3 = 0f;
     
-    private int Bot1Number = 0;
-    private int Bot2Number = 0;
-    private int Bot3Number = 0;
+    [Header("Количество активных ботов, не менять во время игры.")]
+    [SerializeField] private int Bot1Number = 0;
+    [SerializeField] private int Bot2Number = 0;
+    [SerializeField] private int Bot3Number = 0;
     
     private bool _isSpawningEnabled = true;
     
@@ -240,5 +241,11 @@ public class SpawnSystem : MonoBehaviour
     public void ResumeSpawning() => _isSpawningEnabled = true;
 
     [ContextMenu("Spawn Bot1")]
-    public void Spawn() => SpawnBot(bot1, GetSpawnPosition(5f, 5f));
+    public void Spawn1() => SpawnBot(bot1, GetSpawnPosition(5f, 5f));
+    
+    [ContextMenu("Spawn Bot2")]
+    public void Spawn2() => SpawnBot(bot2, GetSpawnPosition(5f, 5f));
+    
+    [ContextMenu("Spawn Bot3")]
+    public void Spawn3() => SpawnBot(bot3, GetSpawnPosition(5f, 5f));
 }

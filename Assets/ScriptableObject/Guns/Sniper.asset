@@ -16,9 +16,9 @@ MonoBehaviour:
   botLayer:
     serializedVersion: 2
     m_Bits: 64
-  damagePerBullet: 60
+  damagePerBullet: 110
   maxShootDistance: 40
-  shootPerMinutes: 50
+  shootPerMinutes: 40
   spread: 0
   bulletsPerShot: 1
   bulletLife: 3
